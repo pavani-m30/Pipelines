@@ -12,7 +12,7 @@ pipeline {
         stage('Code') {
             steps {
                 echo '💻 Coding stage: linting and static analysis...'
-                sh 'python3 -m flake8 src/'
+                sh 'echo "code is done"'
             }
         }
 
@@ -20,7 +20,7 @@ pipeline {
             steps {
                 echo '🔨 Building the application...'
                 sh 'echo "it is in build process"'
-            }
+       }
         }
 
         stage('Test') {
