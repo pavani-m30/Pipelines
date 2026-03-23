@@ -1,27 +1,71 @@
+
 pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        stage('Plan') {
             steps {
-                echo 'Checking out source code...'
-                checkout scm
+                echo '📋 Planning: checking dependencies, environment, and infra readiness...'
+                sh 'python3 plan.py'
+            }
+        }
+
+        stage('Code') {
+            steps {
+                echo '💻 Coding stage: linting and static analysis...'
+                sh 'python3 -m flake8 src/'
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Compiling Java program...'
-                sh 'javac SumExample.java'
+                echo '🔨 Building the application...'
+                sh 'python3 setup.py build'
             }
         }
 
-        stage('Run') {
+        stage('Test') {
             steps {
-                echo 'Running Java program...'
-                sh 'java SumExample'
+                echo '🧪 Running unit and integration tests...'
+                sh 'python3 -m unittest discover tests'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                echo '📦 Packaging artifacts...'
+                sh 'python3 setup.py sdist bdist_wheel'
+            }
+        }
+
+        stage('Release') {
+            steps {
+                echo '🚀 Preparing release candidate...'
+                sh 'python3 release.py'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo '🌐 Deploying to target environment...'
+                sh 'python3 deploy.py'
+            }
+        }
+
+        stage('Monitor') {
+            steps {
+                echo '📊 Monitoring deployment health...'
+                sh 'python3 monitor.py'
             }
         }
     }
-}
 
+    post {
+        success {
+            echo '✅ DevOps pipeline executed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed. Please check logs.'
+        }
+    }
+}
