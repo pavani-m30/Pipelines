@@ -1,67 +1,67 @@
-import subprocess
-import sys
-imp
-REPO_URL = "https://github.com/pavani-m30/Pipelines.git"
-BRANCH_NAME = "main"
-APP_RUN_COMMAND = ["python", "app.py"]  # Change to your app start command
-STAGES = ["plan", "code", "test", "deploy"]  # Pipeline stages
-WORK_DIR = "/home/administrator/Pipelines
+pipeline {
+    agent any
 
-def run_command(command, cwd=None):
-    """Run a shell command and stop if it fails."""
-    try:
-        print(f"\n[RUNNING] {' '.join(command)}")
-        result = subprocess.run(command, cwd=cwd, check=True, text=True)
-        return result.returncode
-    except subprocess.CalledProcessError as e:
-        print(f"[ERROR] Command failed: {' '.join(command)}")
-        sys.exit(1)
+    environment {
+        REPO_URL = 'https://github.com/pavani-m30/Pipelines.git'
+        BRANCH_NAME = 'Main'
+    }
 
-def clone_and_checkout():
-    """Clone the repository and checkout the branch."""
-    if not os.path.exists(WORK_DIR):
-        run_command(["git", "clone", REPO_URL, WORK_DIR])
-    else:
-        print("[INFO] Repository already cloned.")
+    stages {
+        stage('Plan') {
+            steps {
+                echo 'Planning pipeline execution...'
+                echo "Repository: ${env.REPO_URL}"
+                echo "Branch: ${env.BRANCH_NAME}"
+            }
+        }
 
-    run_command(["git", "fetch"], cwd=WORK_DIR)
-    run_command(["git", "checkout", BRANCH_NAME], cwd=WORK_DIR)
-    run_command(["git", "pull"], cwd=WORK_DIR)
+        stage('Checkout') {
+            steps {
+                echo 'Checking out repository...'
+                git branch: "${env.BRANCH_NAME}", url: "${env.REPO_URL}"
+            }
+        }
 
-def run_application():
-    """Run the application and stop if it fails."""
-    print("\n[INFO] Starting application...")
-    try:
-        subprocess.run(APP_RUN_COMMAND, cwd=WORK_DIR, check=True)
-        print("[SUCCESS] Application ran successfully.")
-    except subprocess.CalledProcessError:
-        print("[FAILURE] Application failed. Terminating pipeline.")
-        sys.exit(1)
+        stage('Build') {
+            steps {
+                echo 'Running build commands...'
+                // Replace with your actual build command
+                sh 'echo "Build step executed"'
+            }
+        }
 
-def run_stage(stage_name):
-    """Simulate running a pipeline stage."""
-    print(f"\n[STAGE] {stage_name.upper()} started...")
-    # Replace with actual commands for each stage
-    if stage_name == "plan":
-        run_command(["echo", "Planning deployment..."])
-    elif stage_name == "code":
-        run_command(["echo", "Running code quality checks..."])
-    elif stage_name == "test":
-        run_command(["pytest", "--maxfail=1", "--disable-warnings", "-q"], cwd=WORK_DIR)
-    elif stage_name == "deploy":
-        run_command(["echo", "Deploying application..."])
-    print(f"[STAGE] {stage_name.upper()} completed.")
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                // Replace with your actual test command
+                sh 'echo "Tests executed successfully"'
+            }
+        }
 
-def main():
-    print("=== CI/CD Pipeline Started ===")
-    clone_and_checkout()
-    run_application()
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
+                // Replace with your actual deploy command
+                sh 'echo "Deployment step executed"'
+            }
+        }
 
-    for stage in STAGES:
-        run_stage(stage)
+        stage('Monitor') {
+            steps {
+                echo 'Monitoring application health...'
+                // Replace with your monitoring command
+                sh 'echo "Monitoring step executed"'
+            }
+        }
+    }
 
-    print("\n=== CI/CD Pipeline Completed Successfully ===")
-
-if __name__ == "__main__":
-    main()
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Please check logs.'
+        }
+    }
+}
 
