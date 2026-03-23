@@ -1,66 +1,42 @@
 pipeline {
     agent any
 
-    environment {
-        REPO_URL = 'https://github.com/pavani-m30/Pipelines.git'
-        BRANCH_NAME = 'main'
-    }
-
     stages {
-        stage('Plan') {
+        stage('Create Directory and File') {
             steps {
-                echo 'Planning pipeline execution...'
-                echo "Repository: ${env.REPO_URL}"
-                echo "Branch: ${env.BRANCH_NAME}"
-                
-                // Run your Python file here
-                sh 'python3 prime.py'
-                sh 'python3 factorial.py'
-            }
-        }
-        
-        stage('Checkout') {
-            steps {
-                echo 'Checking out repository...'
-                git branch: "${env.BRANCH_NAME}", url: "${env.REPO_URL}"
-            }
-        }
+                script {
+                    def dirName = "my_directory"
+                    def fileName = "${dirName}/hello.txt"
 
-        stage('Build') {
-            steps {
-                echo 'Running build commands...'
-                sh 'echo "Build step executed"'
-            }
-        }
+                    // Create directory
+                    sh "mkdir -p ${dirName}"
 
-        stage('Test') {
-            steps {
-                echo 'Running tests...'
-                sh 'echo "Tests executed successfully"'
-            }
-        }
+                    // Check if directory exists
+                    if (fileExists(dirName)) {
+                        echo "✅ Directory '${dirName}' created successfully!"
 
-        stage('Deploy') {
-            steps {
-                echo 'Deploying application...'
-                sh 'echo "Deployment step executed"'
-            }
-        }
+                        // Create file with timestamp
+                        sh "echo \"File created at $(date)\" > ${fileName}"
 
-        stage('Monitor') {
-            steps {
-                echo 'Monitoring application health...'
-                sh 'echo "Monitoring step executed"'
+                        // Show directory contents
+                        sh "ls -l ${dirName}"
+
+                        // Show file contents
+                        sh "cat ${fileName}"
+                    } else {
+                        error "❌ Directory '${dirName}' was not created!"
+                    }
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo '🎉 Pipeline executed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Please check logs.'
+            echo '⚠️ Pipeline failed. Please check logs.'
         }
     }
 }
