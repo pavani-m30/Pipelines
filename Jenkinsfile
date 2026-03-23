@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         REPO_URL = 'https://github.com/pavani-m30/Pipelines.git'
-        BRANCH_NAME = 'Main'
+        BRANCH_NAME = 'main'
     }
 
     stages {
