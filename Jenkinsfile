@@ -1,14 +1,11 @@
 import subprocess
 import sys
-import os
-
-# ---------- CONFIGURATION ----------
+imp
 REPO_URL = "https://github.com/pavani-m30/Pipelines.git"
 BRANCH_NAME = "main"
 APP_RUN_COMMAND = ["python", "app.py"]  # Change to your app start command
 STAGES = ["plan", "code", "test", "deploy"]  # Pipeline stages
-WORK_DIR = "/home/administrator/Pipelines"
-# -----------------------------------
+WORK_DIR = "/home/administrator/Pipelines
 
 def run_command(command, cwd=None):
     """Run a shell command and stop if it fails."""
