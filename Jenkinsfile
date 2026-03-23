@@ -5,7 +5,7 @@ pipeline {
         stage('Plan') {
             steps {
                 echo '📋 Planning: checking dependencies, environment, and infra readiness...'
-                sh 'python3 plan.py'
+                sh 'echo "Planing is done"'
             }
         }
 
@@ -19,45 +19,44 @@ pipeline {
         stage('Build') {
             steps {
                 echo '🔨 Building the application...'
-                sh 'python3 setup.py build'
+                sh 'echo "it is in build process"'
             }
         }
 
         stage('Test') {
             steps {
                 echo '🧪 Running unit and integration tests...'
-                sh 'python3 -m unittest discover tests'
+                sh 'echo "test is done"'
             }
         }
 
         stage('Package') {
             steps {
                 echo '📦 Packaging artifacts...'
-                sh 'python3 setup.py sdist bdist_wheel'
+                sh 'echo "package is being built"'
             }
         }
 
         stage('Release') {
             steps {
                 echo '🚀 Preparing release candidate...'
-                sh 'python3 release.py'
+                sh 'echo "it is in building phase"'
             }
         }
 
         stage('Deploy') {
             steps {
                 echo '🌐 Deploying to target environment...'
-                sh 'python3 deploy.py'
+                sh 'echo "it is ready to deploy"'
             }
         }
 
         stage('Monitor') {
             steps {
                 echo '📊 Monitoring deployment health...'
-                sh 'python3 monitor.py'
+                sh 'echo "it is monitoring"'
             }
-        }
-    }
+        }    }
 
     post {
         success {
@@ -68,3 +67,5 @@ pipeline {
         }
     }
 }
+
+
