@@ -1,71 +1,70 @@
-pipeline {
-    agent any
+import subprocess
+import sys
+import os
 
-    stages {
-        stage('Plan') {
-            steps {
-                echo '📋 Planning: checking dependencies, environment, and infra readiness...'
-                sh 'echo "Planing is done"'
-            }
-        }
+# ---------- CONFIGURATION ----------
+REPO_URL = "https://github.com/pavani-m30/Pipelines.git"
+BRANCH_NAME = "main"
+APP_RUN_COMMAND = ["python", "app.py"]  # Change to your app start command
+STAGES = ["plan", "code", "test", "deploy"]  # Pipeline stages
+WORK_DIR = "/home/administrator/Pipelines"
+# -----------------------------------
 
-        stage('Code') {
-            steps {
-                echo '💻 Coding stage: linting and static analysis...'
-                sh 'echo "code is done"'
-            }
-        }
+def run_command(command, cwd=None):
+    """Run a shell command and stop if it fails."""
+    try:
+        print(f"\n[RUNNING] {' '.join(command)}")
+        result = subprocess.run(command, cwd=cwd, check=True, text=True)
+        return result.returncode
+    except subprocess.CalledProcessError as e:
+        print(f"[ERROR] Command failed: {' '.join(command)}")
+        sys.exit(1)
 
-        stage('Build') {
-            steps {
-                echo '🔨 Building the application...'
-                sh 'echo "it is in build process"'
-       }
-        }
+def clone_and_checkout():
+    """Clone the repository and checkout the branch."""
+    if not os.path.exists(WORK_DIR):
+        run_command(["git", "clone", REPO_URL, WORK_DIR])
+    else:
+        print("[INFO] Repository already cloned.")
 
-        stage('Test') {
-            steps {
-                echo '🧪 Running unit and integration tests...'
-                sh 'echo "test is done"'
-            }
-        }
+    run_command(["git", "fetch"], cwd=WORK_DIR)
+    run_command(["git", "checkout", BRANCH_NAME], cwd=WORK_DIR)
+    run_command(["git", "pull"], cwd=WORK_DIR)
 
-        stage('Package') {
-            steps {
-                echo '📦 Packaging artifacts...'
-                sh 'echo "package is being built"'
-            }
-        }
+def run_application():
+    """Run the application and stop if it fails."""
+    print("\n[INFO] Starting application...")
+    try:
+        subprocess.run(APP_RUN_COMMAND, cwd=WORK_DIR, check=True)
+        print("[SUCCESS] Application ran successfully.")
+    except subprocess.CalledProcessError:
+        print("[FAILURE] Application failed. Terminating pipeline.")
+        sys.exit(1)
 
-        stage('Release') {
-            steps {
-                echo '🚀 Preparing release candidate...'
-                sh 'echo "it is in building phase"'
-            }
-        }
+def run_stage(stage_name):
+    """Simulate running a pipeline stage."""
+    print(f"\n[STAGE] {stage_name.upper()} started...")
+    # Replace with actual commands for each stage
+    if stage_name == "plan":
+        run_command(["echo", "Planning deployment..."])
+    elif stage_name == "code":
+        run_command(["echo", "Running code quality checks..."])
+    elif stage_name == "test":
+        run_command(["pytest", "--maxfail=1", "--disable-warnings", "-q"], cwd=WORK_DIR)
+    elif stage_name == "deploy":
+        run_command(["echo", "Deploying application..."])
+    print(f"[STAGE] {stage_name.upper()} completed.")
 
-        stage('Deploy') {
-            steps {
-                echo '🌐 Deploying to target environment...'
-                sh 'echo "it is ready to deploy"'
-            }
-        }
+def main():
+    print("=== CI/CD Pipeline Started ===")
+    clone_and_checkout()
+    run_application()
 
-        stage('Monitor') {
-            steps {
-                echo '📊 Monitoring deployment health...'
-                sh 'echo "it is monitoring"'
-            }
-        }    }
+    for stage in STAGES:
+        run_stage(stage)
 
-    post {
-        success {
-            echo '✅ DevOps pipeline executed successfully!'
-        }
-        failure {
-            echo '❌ Pipeline failed. Please check logs.'
-        }
-    }
-}
+    print("\n=== CI/CD Pipeline Completed Successfully ===")
 
+if __name__ == "__main__":
+    main()
 
