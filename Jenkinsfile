@@ -12,9 +12,13 @@ pipeline {
                 echo 'Planning pipeline execution...'
                 echo "Repository: ${env.REPO_URL}"
                 echo "Branch: ${env.BRANCH_NAME}"
+                
+                // Run your Python file here
+                sh 'python3 prime.py'
+                sh 'python3 factorial.py'
             }
         }
-
+        
         stage('Checkout') {
             steps {
                 echo 'Checking out repository...'
@@ -25,7 +29,6 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Running build commands...'
-                // Replace with your actual build command
                 sh 'echo "Build step executed"'
             }
         }
@@ -33,7 +36,6 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                // Replace with your actual test command
                 sh 'echo "Tests executed successfully"'
             }
         }
@@ -41,7 +43,6 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying application...'
-                // Replace with your actual deploy command
                 sh 'echo "Deployment step executed"'
             }
         }
@@ -49,7 +50,6 @@ pipeline {
         stage('Monitor') {
             steps {
                 echo 'Monitoring application health...'
-                // Replace with your monitoring command
                 sh 'echo "Monitoring step executed"'
             }
         }
@@ -64,4 +64,3 @@ pipeline {
         }
     }
 }
-
