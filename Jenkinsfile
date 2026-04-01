@@ -1,42 +1,39 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Create Directory and File') {
-            steps {
-                script {
-                    def dirName = "my_directory"
-                    def fileName = "${dirName}/hello.txt"
-
-                    // Create directory
-                    sh "mkdir -p ${dirName}"
-
-                    // Check if directory exists
-                    if (fileExists(dirName)) {
-                        echo "✅ Directory '${dirName}' created successfully!"
-
-                        // Create file with timestamp
-                        sh "echo \"File created at $(date)\" > ${fileName}"
-
-                        // Show directory contents
-                        sh "ls -l ${dirName}"
-
-                        // Show file contents
-                        sh "cat ${fileName}"
-                    } else {
-                        error "❌ Directory '${dirName}' was not created!"
-                    }
-                }
-            }
-        }
+    tools {
+        maven 'Maven'   // Make sure Maven is installed in Jenkins
     }
 
-    post {
-        success {
-            echo '🎉 Pipeline executed successfully!'
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/pavani-m30/apnacollege.git'
+            }
         }
-        failure {
-            echo '⚠️ Pipeline failed. Please check logs.'
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            environment {
+                SONARQUBE = credentials('sonar-token-id') // Jenkins credential ID for your SonarQube token
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=pipeline \
+                          -Dsonar.sources=. \
+                          -Dsonar.java.binaries=target/classes \
+                          -Dsonar.host.url=http://localhost:9000 \
+                          -Dsonar.login=$SONARQUBE
+                    '''
+                }
+            }
         }
     }
 }
